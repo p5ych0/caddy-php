@@ -1,0 +1,11 @@
+{
+    experimental_http3
+}
+
+:80, :443 {
+    try_files {path} {path}/ /index.php?{query}
+    root * /var/www/html/public
+    php_fastcgi unix//run/php.sock
+    file_server
+    encode zstd gzip
+}
