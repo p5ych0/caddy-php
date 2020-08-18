@@ -23,7 +23,8 @@ RUN apk --update add --no-cache --virtual .run-deps \
     libzip \
     icu-libs \
     freetype \
-    tar
+    tar \
+    nss-tools
 
 RUN apk add --no-cache --virtual .build-deps \
     gcc \
