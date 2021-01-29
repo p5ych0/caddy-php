@@ -1,5 +1,7 @@
 FROM php:fpm-alpine
 
+ENV PHP_OPCACHE_PRELOAD=""
+
 RUN apk --update add --no-cache --virtual .run-deps \
     bash \
     bash-completion \
@@ -7,10 +9,10 @@ RUN apk --update add --no-cache --virtual .run-deps \
     diffutils \
     grep \
     gmp \
-    git \
     sed \
     openssl \
     imagemagick \
+    gettext \
     mc \
     wget \
     net-tools \
@@ -23,8 +25,7 @@ RUN apk --update add --no-cache --virtual .run-deps \
     libzip \
     icu-libs \
     freetype \
-    tar \
-    nss-tools
+    tar
 
 RUN apk add --no-cache --virtual .build-deps \
     gcc \
@@ -37,6 +38,7 @@ RUN apk add --no-cache --virtual .build-deps \
     linux-headers \
     gnupg \
     libxslt-dev \
+    gettext-dev \
     gd-dev \
     geoip-dev \
     perl-dev \
@@ -55,28 +57,28 @@ RUN apk add --no-cache --virtual .build-deps \
     freetype-dev \
     libjpeg-turbo-dev \
     libxml2-dev \
-    lua \
-    lua-dev \
-    zlib-dev \
-    autoconf \
-    automake \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-configure pgsql -with-pgsql=/usr/include/ \
+    && mkdir -p /usr/src/php/ext/imagick; \
+    curl -fsSL https://github.com/Imagick/imagick/archive/06116aa24b76edaf6b1693198f79e6c295eda8a9.tar.gz | tar xvz -C "/usr/src/php/ext/imagick" --strip 1 \
     && docker-php-ext-install \
       bcmath \
+      calendar \
       intl \
+      imagick \
       exif \
       gmp \
+      gettext \
       mbstring \
       pcntl \
       pgsql \
       pdo_pgsql \
+      pdo_mysql \
       zip \
       gd \
       opcache \
       soap \
       sockets \
-    && pecl install -o -f imagick \
     && pecl install -o -f igbinary \
     && pecl install -o -f psr \
     && pecl install -o -f ds \
@@ -86,20 +88,21 @@ RUN apk add --no-cache --virtual .build-deps \
     && docker-php-ext-enable igbinary imagick mongodb raphf redis psr ds \
     && rm -rf /tmp/* \
     && apk del .build-deps \
-    && echo -e "opcache.memory_consumption=192\nopcache.interned_strings_buffer=16\nopcache.max_accelerated_files=7963\n\
-opcache.revalidate_freq=0\nopcache.fast_shutdown=1\nopcache.enable_cli=1\nopcache.enable=1\nopcache.validate_timestamps=1\n" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini \
+    && echo -e "opcache.memory_consumption=192\nopcache.interned_strings_buffer=16\nopcache.max_accelerated_files=16229\nopcache.jit_buffer_size=32M\n\
+opcache.revalidate_freq=600\nopcache.fast_shutdown=1\nopcache.enable_cli=1\nopcache.enable=1\nopcache.validate_timestamps=1\nopcache.enable_file_override=0\n\
+opcache.preload=\${PHP_OPCACHE_PRELOAD}\nopcache.preload_user=www-data\n" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini \
     && wget http://browscap.org/stream?q=Full_PHP_BrowsCapINI -O /usr/local/etc/php/browscap.ini \
     && wget 'https://caddyserver.com/api/download?os=linux&arch=amd64' -O /usr/local/bin/caddy
 
 COPY ./www.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 COPY ./php.ini /usr/local/etc/php/php.ini
-COPY ./Caddyfile /etc/caddy/Caddyfile
 COPY ./cron/root /var/spool/cron/crontabs/root
+COPY ./Caddyfile /etc/caddy/Caddyfile
 COPY /supervisor/laravel.ini /etc/supervisor.d/laravel.ini
 ADD ./getcomposer.sh .
 
-RUN chmod 0775 /usr/local/bin/caddy \
-    && mkdir /var/log/php \
+RUN mkdir /var/log/php \
+    && chmod 0775 /usr/local/bin/caddy \
     && mkdir /var/log/supervisor \
     && chown www-data:www-data /var/log/php \
     && chmod 0775 /var/log/php \
