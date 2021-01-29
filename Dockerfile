@@ -92,9 +92,10 @@ RUN apk add --no-cache --virtual .build-deps \
 opcache.revalidate_freq=600\nopcache.fast_shutdown=1\nopcache.enable_cli=1\nopcache.enable=1\nopcache.validate_timestamps=1\nopcache.enable_file_override=0\n\
 opcache.preload=\${PHP_OPCACHE_PRELOAD}\nopcache.preload_user=www-data\n" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini \
     && wget http://browscap.org/stream?q=Full_PHP_BrowsCapINI -O /usr/local/etc/php/browscap.ini \
-    && wget 'https://caddyserver.com/api/download?os=linux&arch=amd64' -O /usr/local/bin/caddy
+    && wget 'https://caddyserver.com/api/download?os=linux&arch=amd64' -O /usr/local/bin/caddy \
+    && echo -e "[global]\ndaemonize = no\n" > /usr/local/etc/php-fpm.d/zz-docker.conf
 
-COPY ./www.conf /usr/local/etc/php-fpm.d/zz-docker.conf
+COPY ./www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY ./php.ini /usr/local/etc/php/php.ini
 COPY ./cron/root /var/spool/cron/crontabs/root
 COPY ./Caddyfile /etc/caddy/Caddyfile
