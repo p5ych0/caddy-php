@@ -3,7 +3,7 @@ FROM p5ych0/php-fpm
 RUN wget http://browscap.org/stream?q=Full_PHP_BrowsCapINI -O /usr/local/etc/php/browscap.ini \
     && wget 'https://caddyserver.com/api/download?os=linux&arch=amd64' -O /usr/local/bin/caddy \
     && echo -e "[global]\ndaemonize = no\n" > /usr/local/etc/php-fpm.d/zz-docker.conf \
-    && RUN chmod 0775 /usr/local/bin/caddy
+    && chmod 0775 /usr/local/bin/caddy
 
 COPY ./www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY ./php.ini /usr/local/etc/php/php.ini
