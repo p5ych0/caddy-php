@@ -1,4 +1,4 @@
-FROM p5ych0/php-fpm:v7.4.14-fpm
+FROM p5ych0/php-fpm:v7.4-fpm
 
 ENV PHP_OPCACHE_FREQ=0
 
