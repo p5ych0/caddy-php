@@ -8,7 +8,6 @@ RUN wget http://browscap.org/stream?q=Full_PHP_BrowsCapINI -O /usr/local/etc/php
     && chmod 0775 /usr/local/bin/caddy
 
 COPY ./www.conf /usr/local/etc/php-fpm.d/www.conf
-COPY ./php.ini /usr/local/etc/php/php.ini
 COPY ./Caddyfile /etc/caddy/Caddyfile
 COPY /supervisor/laravel.ini /etc/supervisor.d/laravel.ini
 
