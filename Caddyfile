@@ -1,9 +1,19 @@
-:80, :443 {
-    protocol {
-        experimental_http3
-        allow_h2c
+{
+    servers :443 {
+        protocol {
+            experimental_http3
+            allow_h2c
+        }
     }
 
+    servers :80 {
+        protocol {
+            allow_h2c
+        }
+    }
+}
+
+:80, :443 {
     root * /var/www/html/public
     try_files {path} {path}/ /index.php?{query}
     php_fastcgi unix//run/php.sock
