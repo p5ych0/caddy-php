@@ -1,5 +1,16 @@
 {
-    experimental_http3
+    servers :443 {
+        protocol {
+            experimental_http3
+            allow_h2c
+        }
+    }
+
+    servers :80 {
+        protocol {
+            allow_h2c
+        }
+    }
 }
 
 :80, :443 {
